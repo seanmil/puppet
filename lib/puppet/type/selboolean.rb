@@ -1,4 +1,17 @@
 module Puppet
+  require 'puppet/util/selinux'
+
+  class SELBoolean < Puppet::Property
+    include Puppet::Util::SELinux
+    def insync?(value)
+      if not selinux_support?
+        debug("SELinux bindings not found. Ignoring selbool.")
+        return true
+      end
+      super
+    end
+  end
+
   newtype(:selboolean) do
     @doc = "Manages SELinux booleans on systems with SELinux support.  The supported booleans
       are any of the ones found in `/selinux/booleans/`."
@@ -8,7 +21,7 @@ module Puppet
       isnamevar
     end
 
-    newproperty(:value) do
+    newproperty(:value, :parent => Puppet::SELBoolean) do
       desc "Whether the the SELinux boolean should be enabled or disabled."
       newvalue(:on)
       newvalue(:off)

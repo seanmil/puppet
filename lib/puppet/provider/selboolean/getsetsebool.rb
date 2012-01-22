@@ -1,10 +1,17 @@
 Puppet::Type.type(:selboolean).provide(:getsetsebool) do
+  require 'puppet/util/selinux'
+  include Puppet::Util::SELinux
+
   desc "Manage SELinux booleans using the getsebool and setsebool binaries."
 
   commands :getsebool => "/usr/sbin/getsebool"
   commands :setsebool => "/usr/sbin/setsebool"
 
   def value
+    if not selinux_support?
+      self.debug("SELinux not found. Ignoring resource.")
+      return nil
+    end
     self.debug "Retrieving value of selboolean #{@resource[:name]}"
 
     status = getsebool(@resource[:name])
@@ -20,6 +27,10 @@ Puppet::Type.type(:selboolean).provide(:getsetsebool) do
   end
 
   def value=(new)
+    if not selinux_support?
+      self.debug("SELinux not found. Ignoring resource.")
+      return nil
+    end
     persist = ""
     if @resource[:persistent] == :true
       self.debug "Enabling persistence"
