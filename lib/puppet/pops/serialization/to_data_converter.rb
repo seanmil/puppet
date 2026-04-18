@@ -258,7 +258,7 @@ module Serialization
             # Scalar values are stored using their default string representation
             PCORE_VALUE_KEY => Types::StringConverter.singleton.convert(value)
           }
-        elsif pcore_type.implementation_class.respond_to?(:_pcore_init_from_hash)
+        elsif pcore_type.implementation_class.respond_to?(:_pcore_init_hash)
           process(value) do
             {
               PCORE_TYPE_KEY => pcore_tv,
